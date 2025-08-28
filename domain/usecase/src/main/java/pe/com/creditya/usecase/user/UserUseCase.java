@@ -1,7 +1,6 @@
 package pe.com.creditya.usecase.user;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import pe.com.creditya.model.constants.UserConstants;
 import pe.com.creditya.model.exceptions.TechnicalException;
 import pe.com.creditya.model.exceptions.UserAlreadyExistsException;
@@ -9,11 +8,11 @@ import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.UserRepository;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @RequiredArgsConstructor
-public class UserUseCase {
+public class UserUseCase implements IUserUseCase{
     private final UserRepository userRepository;
 
+    @Override
     public Mono<User> saveUser(User user) {
         return userRepository.existsByEmail(user.getEmail())
                 .flatMap(exists ->
