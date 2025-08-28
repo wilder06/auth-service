@@ -43,7 +43,7 @@ public class RouterRest {
                             ),
                             responses = {
                                     @ApiResponse(
-                                            responseCode = "201",
+                                            responseCode =  "201",
                                             description = "Usuario creado correctamente",
                                             content = @Content(
                                                     schema = @Schema(implementation = UserResponse.class),

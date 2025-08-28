@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
 import org.springframework.web.server.ServerWebExchange;
 
+import pe.com.creditya.api.constants.UserConstants;
 import pe.com.creditya.api.dtos.ErrorResponseDto;
 import pe.com.creditya.model.exceptions.TechnicalException;
 import pe.com.creditya.model.exceptions.UserAlreadyExistsException;
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponseDto errorResponse = new ErrorResponseDto(
                 String.valueOf(HttpStatus.NOT_FOUND.value()),
-                "El recurso solicitado no existe: " + path,
+                UserConstants.NOT_FOUNT_RESOURCE + path,
                 Instant.now()
         );
 

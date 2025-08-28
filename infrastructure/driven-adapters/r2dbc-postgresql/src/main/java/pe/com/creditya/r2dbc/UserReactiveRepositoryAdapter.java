@@ -1,6 +1,5 @@
 package pe.com.creditya.r2dbc;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.UserRepository;
