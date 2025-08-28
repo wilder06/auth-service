@@ -1,10 +1,13 @@
 package pe.com.creditya.config;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import pe.com.creditya.model.user.gateways.UserRepository;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UseCasesConfigTest {
@@ -33,6 +36,11 @@ public class UseCasesConfigTest {
         @Bean
         public MyUseCase myUseCase() {
             return new MyUseCase();
+        }
+
+        @Bean
+        public UserRepository taskRepository() {
+            return Mockito.mock(UserRepository.class);
         }
     }
 

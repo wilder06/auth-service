@@ -1,60 +1,89 @@
 package pe.com.creditya.api;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import pe.com.creditya.api.config.RequestValidator;
+import pe.com.creditya.api.config.UserPath;
+import pe.com.creditya.api.dtos.UserRequest;
+import pe.com.creditya.api.dtos.UserResponse;
+import pe.com.creditya.api.mapper.UserMapper;
+import pe.com.creditya.api.mapper.UserMapperImpl;
+import pe.com.creditya.model.user.User;
+import pe.com.creditya.usecase.user.UserUseCase;
+import reactor.core.publisher.Mono;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
-@ContextConfiguration(classes = {RouterRest.class, Handler.class})
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ContextConfiguration(classes = {RouterRest.class, Handler.class, RequestValidator.class, UserMapperImpl.class})
+@EnableConfigurationProperties(UserPath.class)
 @WebFluxTest
 class RouterRestTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
+    @MockitoBean
+    private UserMapper userMapper;
+
+    @MockitoBean
+    private UserUseCase userUseCase;
+
+    @Autowired
+    private UserPath userPath;
+
+    private final UserResponse userResponse = UserResponse.builder()
+            .name("demo")
+            .lastName("pablo")
+            .email("demo@gmail.com")
+            .baseSalary(BigDecimal.valueOf(10.0))
+            .address("direccion")
+            .phoneNumber("+516895987")
+            .birthDate(LocalDate.now())
+            .build();
+    private final User userOne = User.builder()
+            .name("demo")
+            .lastName("pablo")
+            .email("demo@gmail.com")
+            .baseSalary(BigDecimal.valueOf(10.0))
+            .address("direccion")
+            .phoneNumber("+516895987")
+            .birthDate(LocalDate.now())
+            .build();
+    private final UserRequest userRequest = UserRequest.builder()
+            .name("demo")
+            .lastName("pablo")
+            .email("demo@gmail.com")
+            .baseSalary(BigDecimal.valueOf(10.0))
+            .address("direccion")
+            .phoneNumber("+516895987")
+            .birthDate(LocalDate.now())
+            .build();
+
     @Test
-    void testListenGETUseCase() {
-        webTestClient.get()
-                .uri("/api/usecase/path")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(String.class)
-                .value(userResponse -> {
-                            Assertions.assertThat(userResponse).isEmpty();
-                        }
-                );
+    void shouldLoadUserPathProperties() {
+        assertEquals("/api/v1/usuarios", userPath.getUsers());
     }
 
     @Test
-    void testListenGETOtherUseCase() {
-        webTestClient.get()
-                .uri("/api/otherusercase/path")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(String.class)
-                .value(userResponse -> {
-                            Assertions.assertThat(userResponse).isEmpty();
-                        }
-                );
-    }
-
-    @Test
-    void testListenPOSTUseCase() {
+    void shouldReturn200WhenSaveUser() {
+        when(userMapper.toUser(any(UserRequest.class))).thenReturn(userOne);
+        when(userUseCase.saveUser(any(User.class))).thenReturn(Mono.just(userOne));
+        when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
         webTestClient.post()
-                .uri("/api/usecase/otherpath")
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyValue("")
+                .uri(userPath.getUsers())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(userRequest)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(String.class)
-                .value(userResponse -> {
-                            Assertions.assertThat(userResponse).isEmpty();
-                        }
-                );
+                .expectStatus().isOk();
     }
 }
