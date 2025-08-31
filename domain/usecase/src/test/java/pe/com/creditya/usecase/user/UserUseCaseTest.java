@@ -2,8 +2,9 @@ package pe.com.creditya.usecase.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pe.com.creditya.model.exceptions.TechnicalException;
-import pe.com.creditya.model.exceptions.UserAlreadyExistsException;
+import pe.com.creditya.model.common.exceptions.TechnicalException;
+import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
+import pe.com.creditya.model.common.validations.UserValidator;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.UserRepository;
 import reactor.core.publisher.Mono;
@@ -18,13 +19,16 @@ import static org.mockito.Mockito.*;
 class UserUseCaseTest {
 
     private UserRepository userRepository;
-    private UserUseCase userUseCase;
+    private IUserUseCase userUseCase;
+    private  UserValidator validator;
+
     private User user;
 
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
-        userUseCase = new UserUseCase(userRepository);
+            validator = mock(UserValidator.class);
+        userUseCase = new UserUseCase(userRepository,validator  );
         user = User.builder()
                 .name("demo")
                 .lastName("pablo")

@@ -8,13 +8,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import pe.com.creditya.api.config.RequestValidator;
-import pe.com.creditya.api.config.UserPath;
+import pe.com.creditya.api.common.UserPath;
+import pe.com.creditya.api.common.ValidatorConfig;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.api.mapper.UserMapperImpl;
 import pe.com.creditya.model.user.User;
+import pe.com.creditya.usecase.user.IUserUseCase;
 import pe.com.creditya.usecase.user.UserUseCase;
 import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes = {RouterRest.class, Handler.class, RequestValidator.class, UserMapperImpl.class})
+@ContextConfiguration(classes = {RouterRest.class, Handler.class, ValidatorConfig.class, UserMapperImpl.class})
 @EnableConfigurationProperties(UserPath.class)
 @WebFluxTest
 class RouterRestTest {
@@ -36,7 +37,7 @@ class RouterRestTest {
     private UserMapper userMapper;
 
     @MockitoBean
-    private UserUseCase userUseCase;
+    private IUserUseCase userUseCase;
 
     @Autowired
     private UserPath userPath;
@@ -84,6 +85,6 @@ class RouterRestTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userRequest)
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isCreated();
     }
 }

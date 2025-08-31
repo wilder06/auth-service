@@ -1,4 +1,4 @@
-package pe.com.creditya.model.exceptions;
+package pe.com.creditya.model.common.exceptions;
 
 public class TechnicalException extends RuntimeException {
     public TechnicalException(String message, Throwable cause) {

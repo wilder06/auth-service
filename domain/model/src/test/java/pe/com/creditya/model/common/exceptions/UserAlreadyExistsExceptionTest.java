@@ -1,4 +1,4 @@
-package pe.com.creditya.model.exceptions;
+package pe.com.creditya.model.common.exceptions;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ class UserAlreadyExistsExceptionTest {
         UserAlreadyExistsException exception = new UserAlreadyExistsException(email);
 
         assertThat(exception)
-                .hasMessage("User already exists with email: " + email)
+                .hasMessage("Usuario existe con el email: " + email)
                 .hasNoCause();
     }
 }

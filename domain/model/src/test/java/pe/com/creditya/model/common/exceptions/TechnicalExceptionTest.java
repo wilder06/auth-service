@@ -1,6 +1,7 @@
-package pe.com.creditya.model.exceptions;
+package pe.com.creditya.model.common.exceptions;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TechnicalExceptionTest {

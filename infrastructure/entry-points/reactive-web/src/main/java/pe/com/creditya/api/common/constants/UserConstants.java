@@ -1,4 +1,4 @@
-package pe.com.creditya.api.constants;
+package pe.com.creditya.api.common.constants;
 
 public class UserConstants {
     public static final String LOGGER_START = "Request recibido para registrar usuario: {}";

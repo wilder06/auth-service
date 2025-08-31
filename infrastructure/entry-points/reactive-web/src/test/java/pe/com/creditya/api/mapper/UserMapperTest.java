@@ -15,13 +15,13 @@ class UserMapperTest {
 
     @Test
     void shouldMapUserRequestToUser() {
-        UserRequest request = new UserRequest();
-        request.setName("John");
-        request.setLastName("demo");
-        request.setEmail("john.demo@test.com");
-        request.setPhoneNumber("51987456321");
-        request.setAddress("Lima, Peru");
-        request.setBaseSalary(BigDecimal.valueOf(4000.0));
+        UserRequest request = UserRequest.builder()
+                .name("John")
+                .lastName("demo")
+                .email("john.demo@test.com")
+                .phoneNumber("51987456321")
+                .address("Lima, Peru")
+                .baseSalary(BigDecimal.valueOf(4000.0)).build();
 
         User user = mapper.toUser(request);
 

@@ -1,34 +1,20 @@
 package pe.com.creditya.api.dtos;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+import lombok.Builder;
+import org.springframework.format.annotation.DateTimeFormat;
+
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserRequest {
-    @NotBlank(message = "El nombre no puede estar vacío")
-    private String name;
-
-    @NotBlank(message = "El apellido no puede estar vacío")
-    private String lastName;
-
-    private LocalDate birthDate;
-
-    private String address;
-
-    private String phoneNumber;
-
-    @NotBlank(message = "El correo electrónico no puede estar vacío")
-    @Email(message = "El correo electrónico no tiene un formato válido")
-    private String email;
-
-    @NotNull(message = "El salario base no puede ser nulo")
-    @Min(value = 0, message = "El salario base no puede ser menor que 0")
-    @Max(value = 15000000, message = "El salario base no puede superar 15,000,000")
-    private BigDecimal baseSalary;
+public record UserRequest(
+        @NotBlank String name,
+        @NotBlank String lastName,
+        @NotBlank @Email String email,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
+        String phoneNumber,
+        String address,
+        @NotNull @DecimalMin("0.00") @DecimalMax("15000000") BigDecimal baseSalary) {
 }
