@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import pe.com.creditya.api.common.UserPath;
+import pe.com.creditya.api.common.ValidatorConfig;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.api.mapper.UserMapper;
@@ -24,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {RouterRest.class, Handler.class, UserPath.class,
-        RequestValidator.class, UserMapperImpl.class })
+        ValidatorConfig.class, UserMapperImpl.class })
 @WebFluxTest
 @Import({CorsConfig.class, SecurityHeadersConfig.class})
 class ConfigTest {

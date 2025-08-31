@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
 import org.springframework.web.server.ServerWebExchange;
 
-import pe.com.creditya.api.constants.UserConstants;
+import pe.com.creditya.api.common.constants.UserConstants;
 import pe.com.creditya.api.dtos.ErrorResponseDto;
-import pe.com.creditya.model.exceptions.TechnicalException;
-import pe.com.creditya.model.exceptions.UserAlreadyExistsException;
+import pe.com.creditya.model.common.exceptions.TechnicalException;
+import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
