@@ -31,10 +31,8 @@ public class UserUseCase implements IUserUseCase {
 
     private Mono<User> handleUserExistence(boolean exists, User user) {
         if (exists) {
-            System.out.println("LOG "+exists);
             return Mono.error(new UserAlreadyExistsException(user.getEmail()));
         }
-        System.out.println("LOG preview save"+exists);
         return userRepository.saveUser(user);
     }
 

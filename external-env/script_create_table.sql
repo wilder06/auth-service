@@ -1,4 +1,4 @@
-CREATE TABLE "users"
+CREATE TABLE "usuarios"
 (
     id_user      UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Identificador único con UUID
     name         VARCHAR(100)        NOT NULL,               -- Nombre del usuario

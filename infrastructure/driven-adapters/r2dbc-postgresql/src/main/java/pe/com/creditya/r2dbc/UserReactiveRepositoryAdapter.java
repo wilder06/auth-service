@@ -45,12 +45,17 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Boolean> existsByEmail(String email) {
         log.info(LoggerConstants.LOG_START_VERIFY_EXIST_EMAIL, email);
         return repository.findByEmail(email)
-                .doOnNext(exists -> log.info("User exists: {}", exists));
+                .map(user -> true)
+                .defaultIfEmpty(false)
+                .onErrorResume(ex -> {
+                    log.error("Error checking email {}: {}", email, ex.getMessage());
+                    return Mono.just(false);
+                });
     }
 
     @Override
     public Mono<User> findByDocumentNumber(String documentNumber) {
-        log.info(LoggerConstants.LOG_START_VERIFY_EXIST_DOCUMENT , documentNumber);
+        log.info(LoggerConstants.LOG_START_VERIFY_EXIST_DOCUMENT, documentNumber);
         return repository.findByDocumentNumber(documentNumber)
                 .doOnSubscribe(sub -> log.info("Ejecutando query..."))
                 .doOnNext(user -> log.info("Usuario encontrado: {}", user))
