@@ -1,5 +1,6 @@
 package pe.com.creditya.api;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,6 +50,7 @@ class RouterRestTest {
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
             .phoneNumber("+516895987")
+            .documentNumber("32178987")
             .birthDate(LocalDate.now())
             .build();
     private final User userOne = User.builder()
@@ -58,6 +60,7 @@ class RouterRestTest {
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
             .phoneNumber("+516895987")
+            .documentNumber("32178987")
             .birthDate(LocalDate.now())
             .build();
     private final UserRequest userRequest = UserRequest.builder()
@@ -67,6 +70,7 @@ class RouterRestTest {
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
             .phoneNumber("+516895987")
+            .documentNumber("32178987")
             .birthDate(LocalDate.now())
             .build();
 
@@ -87,4 +91,21 @@ class RouterRestTest {
                 .exchange()
                 .expectStatus().isCreated();
     }
+    @Test
+    void testListenGET_UserExists_ReturnsTrue() {
+        when(userUseCase.findByDocumentNumber("12345678"))
+                .thenReturn(Mono.just(userOne));
+        when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
+
+
+        webTestClient.get()
+                .uri(userPath.getUserByDocumentNumber(), "12345678")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(UserResponse.class)
+                .value(response -> Assertions.assertThat(response.documentNumber()).isEqualTo("32178987"));
+    }
+
 }

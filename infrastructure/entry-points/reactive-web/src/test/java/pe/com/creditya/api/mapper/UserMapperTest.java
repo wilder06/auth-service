@@ -20,6 +20,7 @@ class UserMapperTest {
                 .lastName("demo")
                 .email("john.demo@test.com")
                 .phoneNumber("51987456321")
+                .documentNumber("32178987")
                 .address("Lima, Peru")
                 .baseSalary(BigDecimal.valueOf(4000.0)).build();
 
@@ -36,6 +37,7 @@ class UserMapperTest {
         user.setLastName("perez");
         user.setEmail("jane.perez@test.com");
         user.setPhoneNumber("51987654321");
+        user.setDocumentNumber("12452356");
         user.setAddress("Arequipa, Peru");
         user.setBaseSalary(BigDecimal.valueOf(4000.0));
 

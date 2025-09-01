@@ -18,6 +18,7 @@ import pe.com.creditya.api.dtos.ErrorResponseDto;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -43,7 +44,7 @@ public class RouterRest {
                             ),
                             responses = {
                                     @ApiResponse(
-                                            responseCode =  "201",
+                                            responseCode = "201",
                                             description = "Usuario creado correctamente",
                                             content = @Content(
                                                     schema = @Schema(implementation = UserResponse.class),
@@ -90,7 +91,8 @@ public class RouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerFunction() {
-        return route(POST(userPath.getUsers()), userHandler::listenSaveUser);
+        return route(POST(userPath.getUsers()), userHandler::listenSaveUser)
+                .andRoute(GET(userPath.getUserByDocumentNumber()), userHandler::listenGetTaskByDocumentNumber);
     }
 
 }

@@ -18,6 +18,7 @@ class UserTest {
                 .address("123 Street")
                 .phoneNumber("987654321")
                 .email("john.doe@example.com")
+                .documentNumber("12345678")
                 .baseSalary(new BigDecimal("2500.50"))
                 .build();
 
@@ -29,6 +30,7 @@ class UserTest {
                 () -> assertEquals("123 Street", user.getAddress()),
                 () -> assertEquals("987654321", user.getPhoneNumber()),
                 () -> assertEquals("john.doe@example.com", user.getEmail()),
+                () -> assertEquals("12345678", user.getDocumentNumber()),
                 () -> assertEquals(new BigDecimal("2500.50"), user.getBaseSalary())
         );
     }

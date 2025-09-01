@@ -2,6 +2,7 @@ package pe.com.creditya.usecase.user;
 
 import lombok.RequiredArgsConstructor;
 import pe.com.creditya.model.common.constants.LogConstants;
+import pe.com.creditya.model.common.exceptions.NotFoundException;
 import pe.com.creditya.model.common.exceptions.TechnicalException;
 import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
 import pe.com.creditya.model.user.User;
@@ -24,14 +25,27 @@ public class UserUseCase implements IUserUseCase {
                     if (ex instanceof UserAlreadyExistsException) {
                         return Mono.error(new UserAlreadyExistsException(user.getEmail()));
                     }
-                    return Mono.error(new TechnicalException(LogConstants.LOGGER_ERROR_GENERAL, ex.getCause()));
+                    return Mono.error(new TechnicalException(LogConstants.LOGGER_ERROR_GENERAL, ex));
                 });
     }
 
     private Mono<User> handleUserExistence(boolean exists, User user) {
         if (exists) {
+            System.out.println("LOG "+exists);
             return Mono.error(new UserAlreadyExistsException(user.getEmail()));
         }
+        System.out.println("LOG preview save"+exists);
         return userRepository.saveUser(user);
+    }
+
+    @Override
+    public Mono<User> findByDocumentNumber(String documentNumber) {
+        return userRepository.findByDocumentNumber(documentNumber)
+                .onErrorResume(ex -> {
+                    if (ex instanceof UserAlreadyExistsException) {
+                        return Mono.error(new NotFoundException(LogConstants.LOGGER_USER_NOT_EXISTS + documentNumber));
+                    }
+                    return Mono.error(new TechnicalException(ex.getMessage(), ex));
+                });
     }
 }

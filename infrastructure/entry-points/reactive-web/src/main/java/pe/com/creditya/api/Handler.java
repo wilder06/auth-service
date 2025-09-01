@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class Handler {
-    private final IUserUseCase userUseCase;
+    private final IUserUseCase iUserUseCase;
     private final ValidatorConfig requestValidator;
     private final UserMapper userMapper;
 
@@ -30,7 +30,7 @@ public class Handler {
                 .flatMap(requestValidator::validate)
                 .map(userMapper::toUser)
                 .doOnNext(user -> log.debug(UserConstants.LOGGER_MAP, user))
-                .flatMap(userUseCase::saveUser)
+                .flatMap(iUserUseCase::saveUser)
                 .doOnNext(user -> log.info(UserConstants.LOGGER_SAVE_SUCCESS, user.getEmail()))
                 .map(userMapper::toUserResponse)
                 .flatMap(savedUser -> ServerResponse
@@ -40,5 +40,13 @@ public class Handler {
                 .doOnError(ex -> log.error(UserConstants.LOGGER_SAVE_FAIL, ex.getMessage(), ex));
 
     }
-
+    public Mono<ServerResponse> listenGetTaskByDocumentNumber(ServerRequest serverRequest) {
+        String id = serverRequest.pathVariable("documentNumber");
+        return iUserUseCase.findByDocumentNumber(id)
+                .map(userMapper::toUserResponse)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
 }
