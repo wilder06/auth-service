@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface IUserUseCase {
     Mono<User> saveUser(User user);
+   Mono<User> findByDocumentNumber(String documentNumber);
 }

@@ -11,6 +11,7 @@ public record UserResponse(
         LocalDate birthDate,
         String address,
         String phoneNumber,
+        String documentNumber,
         String email,
         BigDecimal baseSalary
 ) {

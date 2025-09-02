@@ -15,6 +15,8 @@ public record UserRequest(
         @NotBlank @Email String email,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
         String phoneNumber,
+        @NotBlank
+        String documentNumber,
         String address,
         @NotNull @DecimalMin("0.00") @DecimalMax("15000000") BigDecimal baseSalary) {
 }

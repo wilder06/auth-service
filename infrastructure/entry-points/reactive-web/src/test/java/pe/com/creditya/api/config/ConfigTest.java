@@ -40,15 +40,6 @@ class ConfigTest {
     @MockitoBean
     private UserUseCase userUseCase;
 
-    private final UserRequest userRequest = UserRequest.builder()
-            .name("demo")
-            .lastName("pablo")
-            .email("demo@gmail.com")
-            .baseSalary(BigDecimal.valueOf(10.0))
-            .address("direccion")
-            .phoneNumber("+516895987")
-            .birthDate(LocalDate.now())
-            .build();
     private final UserResponse userResponse =  UserResponse.builder()
             .name("demo")
             .lastName("pablo")
@@ -65,6 +56,7 @@ class ConfigTest {
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
             .phoneNumber("+516895987")
+            .documentNumber("32178987")
             .birthDate(LocalDate.now())
             .build();
 

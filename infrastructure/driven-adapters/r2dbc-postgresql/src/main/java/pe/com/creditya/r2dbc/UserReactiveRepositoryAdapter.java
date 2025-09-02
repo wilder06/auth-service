@@ -2,6 +2,7 @@ package pe.com.creditya.r2dbc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import pe.com.creditya.model.common.exceptions.NotFoundException;
 import pe.com.creditya.model.common.exceptions.UserPersistenceException;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.UserRepository;
@@ -43,10 +44,23 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<Boolean> existsByEmail(String email) {
         log.info(LoggerConstants.LOG_START_VERIFY_EXIST_EMAIL, email);
-        return repository.findByEmail(email).hasElement()
-                .onErrorMap(ex -> new UserPersistenceException(
-                        LoggerConstants.LOG_VERIFY_EXIST_EMAIL,
-                        ex
-                ));
+        return repository.findByEmail(email)
+                .map(user -> true)
+                .defaultIfEmpty(false)
+                .onErrorResume(ex -> {
+                    log.error("Error checking email {}: {}", email, ex.getMessage());
+                    return Mono.just(false);
+                });
+    }
+
+    @Override
+    public Mono<User> findByDocumentNumber(String documentNumber) {
+        log.info(LoggerConstants.LOG_START_VERIFY_EXIST_DOCUMENT, documentNumber);
+        return repository.findByDocumentNumber(documentNumber)
+                .doOnSubscribe(sub -> log.info("Ejecutando query..."))
+                .doOnNext(user -> log.info("Usuario encontrado: {}", user))
+                .doOnError(error -> log.error("Error en query: {}", error.getMessage()))
+                .switchIfEmpty(Mono.fromRunnable(() -> log.info("No se encontró usuario")))
+                .map(this::toEntity);
     }
 }

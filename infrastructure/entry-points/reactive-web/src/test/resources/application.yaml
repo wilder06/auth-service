@@ -1,3 +1,4 @@
 routes:
   paths:
     users: "/api/v1/usuarios"
+    userByDocumentNumber: "/api/v1/usuarios/{documentNumber}"

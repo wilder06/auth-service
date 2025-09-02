@@ -28,7 +28,7 @@ class UserUseCaseTest {
     void setUp() {
         userRepository = mock(UserRepository.class);
             validator = mock(UserValidator.class);
-        userUseCase = new UserUseCase(userRepository,validator  );
+        userUseCase = new UserUseCase(userRepository,validator);
         user = User.builder()
                 .name("demo")
                 .lastName("pablo")
@@ -36,6 +36,7 @@ class UserUseCaseTest {
                 .baseSalary(BigDecimal.valueOf(10.0))
                 .address("direccion")
                 .phoneNumber("+516895987")
+                .documentNumber("12345678")
                 .birthDate(LocalDate.now())
                 .build();
     }
@@ -83,5 +84,17 @@ class UserUseCaseTest {
 
         verify(userRepository).existsByEmail(user.getEmail());
         verify(userRepository, never()).saveUser(any());
+    }
+    @Test
+    void findUser_whenUserSentDocumentNumber() {
+
+        when(userRepository.findByDocumentNumber(user.getDocumentNumber()))
+                .thenReturn(Mono.just(user));
+
+        StepVerifier.create(userUseCase.findByDocumentNumber(user.getDocumentNumber()))
+                .expectNext(user)
+                .verifyComplete();
+
+        verify(userRepository).findByDocumentNumber(user.getDocumentNumber());
     }
 }
