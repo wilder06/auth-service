@@ -1,4 +1,4 @@
-package pe.com.creditya.api.common;
+package pe.com.creditya.api.common.validators;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -6,7 +6,6 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import pe.com.creditya.api.common.constants.UserConstants;
 import pe.com.creditya.model.common.validations.UserValidator;

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import pe.com.creditya.api.common.UserPath;
-import pe.com.creditya.api.common.ValidatorConfig;
+import pe.com.creditya.api.common.validators.ValidatorConfig;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.api.mapper.UserMapper;

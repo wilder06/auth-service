@@ -19,5 +19,7 @@ public class User {
     private String phoneNumber;
     private String documentNumber;
     private String email;
+    private String password;
     private BigDecimal baseSalary;
+    private Long idRole;
 }

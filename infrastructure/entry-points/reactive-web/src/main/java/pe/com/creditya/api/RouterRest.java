@@ -1,15 +1,19 @@
 package pe.com.creditya.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -31,13 +35,14 @@ public class RouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/usuarios",
+                    path = "/api/v1/usuarios/register",
                     method = RequestMethod.POST,
                     beanClass = Handler.class,
                     beanMethod = "listenSaveUser",
                     operation = @Operation(
                             operationId = "listenSaveUser",
                             summary = "Crear nuevo Usuario",
+                            security = @SecurityRequirement(name = "bearerAuth"),
                             requestBody = @RequestBody(
                                     required = true,
                                     content = @Content(schema = @Schema(implementation = UserRequest.class))
@@ -88,11 +93,44 @@ public class RouterRest {
 
                             }
                     )
+            ), @RouterOperation(
+            path = "/api/v1/usuarios/{documentNumber}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            beanClass = Handler.class,
+            beanMethod = "listenGetUserByDocumentNumber",
+            operation = @Operation(
+                    operationId = "listenGetUserByDocumentNumber",
+                    summary = "Verifica si existe un usuario por número de documento",
+                    security = @SecurityRequirement(name = "bearerAuth"),
+
+                    parameters = {
+                            @Parameter(
+                                    name = "documentNumber",
+                                    in = ParameterIn.PATH,
+                                    required = true,
+                                    description = "Número de documento del usuario a verificar"
+                            )
+                    },
+                    responses = {
+                            @ApiResponse(
+                                    responseCode = "200",
+                                    description = "Resultado de la verificación",
+                                    content = @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE
+                                    )
+                            ),
+                            @ApiResponse(
+                                    responseCode = "400",
+                                    description = "Parámetro 'documentNumber' inválido o vacío"
+                            )
+                    }
             )
+    )
     })
     public RouterFunction<ServerResponse> routerFunction() {
         return route(POST(userPath.getUsers()), userHandler::listenSaveUser)
-                .andRoute(GET(userPath.getUserByDocumentNumber()), userHandler::listenGetTaskByDocumentNumber);
+                .andRoute(GET(userPath.getUserByDocumentNumber()), userHandler::listenGetUserByDocumentNumber);
     }
 
 }
