@@ -25,14 +25,14 @@ public class ValidatorConfig {
     }
 
     public <T> Mono<T> validate(T request) {
-        Set<ConstraintViolation<T>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            log.warn(UserConstants.LOGGER_VALIDATION_FAIL,
-                    request,
-                    violations.stream().map(ConstraintViolation::getMessage).toList());
-            return Mono.error(new ConstraintViolationException(violations));
-        }
-        log.info(UserConstants.LOGGER_VALIDATION_SUCCESS, request);
-        return Mono.just(request);
+        return Mono.just(request)
+                .handle((validRequest, sink) -> {
+                    Set<ConstraintViolation<T>> violations = validator.validate(validRequest);
+                    if (violations.isEmpty()) {
+                        sink.next(validRequest);
+                    } else {
+                        sink.error(new ConstraintViolationException(violations));
+                    }
+                });
     }
 }

@@ -5,6 +5,7 @@ public class ApiPaths {
     public static final String AUTH_BASE = "/api/v1";
     public static final String LOGIN = AUTH_BASE + "/login";
     public static final String REGISTER = AUTH_BASE + "/usuarios/register";
+    public static final String APPLICATIONS =AUTH_BASE + "/usuarios/by-emails";
 
     public static final String SWAGGER_UI = "/swagger-ui.html";
     public static final String SWAGGER_UI_ALL = "/swagger-ui/**";

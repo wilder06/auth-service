@@ -2,6 +2,7 @@ package pe.com.creditya.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,9 @@ import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.usecase.user.IUserUseCase;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -40,6 +44,7 @@ public class Handler {
                 .doOnError(ex -> log.error(UserConstants.LOGGER_SAVE_FAIL, ex.getMessage(), ex));
 
     }
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public Mono<ServerResponse> listenGetUserByDocumentNumber(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable(UserConstants.VARIABLE_NAME);
@@ -49,5 +54,22 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
                 .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADVISOR')")
+    public Mono<ServerResponse> getUsersByEmails(ServerRequest request) {
+        return request.bodyToMono(new ParameterizedTypeReference<List<String>>() {})
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Request body is required")))
+                .flatMap(requestValidator::validate)
+                .flatMapMany(iUserUseCase::findByEmails)
+                .map(userMapper::toUserResponse)
+                .collectList()
+                .flatMap(users -> users.isEmpty() ?
+                        ServerResponse.notFound().build() :
+                        ServerResponse.ok().bodyValue(users)
+                )
+                .onErrorResume(IllegalArgumentException.class, ex ->
+                        ServerResponse.badRequest().bodyValue(Map.of("error", ex.getMessage()))
+                );
     }
 }
