@@ -6,18 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import pe.com.creditya.api.common.UserPath;
-import pe.com.creditya.api.common.ValidatorConfig;
+import pe.com.creditya.api.common.validators.ValidatorConfig;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.api.mapper.UserMapperImpl;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.usecase.user.IUserUseCase;
-import pe.com.creditya.usecase.user.UserUseCase;
 import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 
 @ContextConfiguration(classes = {RouterRest.class, Handler.class, ValidatorConfig.class, UserMapperImpl.class})
 @EnableConfigurationProperties(UserPath.class)
@@ -61,6 +63,8 @@ class RouterRestTest {
             .address("direccion")
             .phoneNumber("+516895987")
             .documentNumber("32178987")
+            .password("admin123")
+            .idRole(3L)
             .birthDate(LocalDate.now())
             .build();
     private final UserRequest userRequest = UserRequest.builder()
@@ -69,6 +73,8 @@ class RouterRestTest {
             .email("demo@gmail.com")
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
+            .password("admin123")
+            .idRole(3L)
             .phoneNumber("+516895987")
             .documentNumber("32178987")
             .birthDate(LocalDate.now())
@@ -76,7 +82,8 @@ class RouterRestTest {
 
     @Test
     void shouldLoadUserPathProperties() {
-        assertEquals("/api/v1/usuarios", userPath.getUsers());
+        assertEquals("/api/v1/usuarios/register", userPath.getUsers());
+        assertEquals("/api/v1/usuarios/{documentNumber}", userPath.getUserByDocumentNumber());
     }
 
     @Test
@@ -84,7 +91,10 @@ class RouterRestTest {
         when(userMapper.toUser(any(UserRequest.class))).thenReturn(userOne);
         when(userUseCase.saveUser(any(User.class))).thenReturn(Mono.just(userOne));
         when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
-        webTestClient.post()
+        webTestClient
+                .mutateWith(mockUser("admin").roles("ADMIN"))
+                .mutateWith(csrf())
+                .post()
                 .uri(userPath.getUsers())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userRequest)
@@ -98,8 +108,10 @@ class RouterRestTest {
         when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
 
 
-        webTestClient.get()
-                .uri(userPath.getUserByDocumentNumber(), "12345678")
+        webTestClient
+                .mutateWith(mockUser("admin").roles("ADMIN"))
+                .get()
+                .uri(userPath.getUserByDocumentNumber(), "32178987")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()

@@ -63,4 +63,13 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .switchIfEmpty(Mono.fromRunnable(() -> log.info("No se encontró usuario")))
                 .map(this::toEntity);
     }
+
+    @Override
+    public Mono<User> findByEmail(String email) {
+        log.info("Checking if user exists with email {}", email);
+
+        return repository.findByEmail(email).map(this::toEntity)
+                .doOnNext(user -> log.info("User found: {}", user));
+    }
+
 }

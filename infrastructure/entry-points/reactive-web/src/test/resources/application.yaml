@@ -1,4 +1,4 @@
 routes:
   paths:
-    users: "/api/v1/usuarios"
+    users: "/api/v1/usuarios/register"
     userByDocumentNumber: "/api/v1/usuarios/{documentNumber}"

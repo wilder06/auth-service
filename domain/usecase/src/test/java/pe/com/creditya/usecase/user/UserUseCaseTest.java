@@ -2,10 +2,13 @@ package pe.com.creditya.usecase.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pe.com.creditya.model.common.constants.LogConstants;
+import pe.com.creditya.model.common.exceptions.NotFoundException;
 import pe.com.creditya.model.common.exceptions.TechnicalException;
 import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
 import pe.com.creditya.model.common.validations.UserValidator;
 import pe.com.creditya.model.user.User;
+import pe.com.creditya.model.user.gateways.PasswordEncoderRepository;
 import pe.com.creditya.model.user.gateways.UserRepository;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -21,6 +24,7 @@ class UserUseCaseTest {
     private UserRepository userRepository;
     private IUserUseCase userUseCase;
     private  UserValidator validator;
+    private PasswordEncoderRepository passwordEncoderRepository;
 
     private User user;
 
@@ -28,7 +32,8 @@ class UserUseCaseTest {
     void setUp() {
         userRepository = mock(UserRepository.class);
             validator = mock(UserValidator.class);
-        userUseCase = new UserUseCase(userRepository,validator);
+        passwordEncoderRepository=mock(PasswordEncoderRepository.class);
+        userUseCase = new UserUseCase(userRepository,passwordEncoderRepository,validator);
         user = User.builder()
                 .name("demo")
                 .lastName("pablo")
@@ -69,6 +74,36 @@ class UserUseCaseTest {
         verify(userRepository).existsByEmail(user.getEmail());
         verify(userRepository, never()).saveUser(any());
     }
+    @Test
+    void findByDocumentNumber_returnsNotFoundException_whenUserAlreadyExistsExceptionThrown() {
+        String documentNumber = "12345678";
+        String expectedMessage = LogConstants.LOGGER_USER_NOT_EXISTS + documentNumber;
+
+        when(userRepository.findByDocumentNumber(documentNumber))
+                .thenReturn(Mono.error(new UserAlreadyExistsException("User already exists")));
+
+        StepVerifier.create(userUseCase.findByDocumentNumber(documentNumber))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof NotFoundException &&
+                                throwable.getMessage().equals(expectedMessage))
+                .verify();
+    }
+    @Test
+    void findByDocumentNumber_returnsTechnicalException_whenGenericExceptionThrown() {
+        String documentNumber = "12345678";
+        String errorMessage = "Database connection failed";
+
+        when(userRepository.findByDocumentNumber(documentNumber))
+                .thenReturn(Mono.error(new RuntimeException(errorMessage)));
+
+        StepVerifier.create(userUseCase.findByDocumentNumber(documentNumber))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof TechnicalException &&
+                                throwable.getMessage().equals(errorMessage) &&
+                                throwable.getCause() instanceof RuntimeException)
+                .verify();
+    }
+
 
     @Test
     void saveUser_error_whenUnexpectedErrorOccurs() {

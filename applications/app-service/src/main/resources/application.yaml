@@ -24,8 +24,13 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 routes:
   paths:
-    users: "/api/v1/usuarios"
+    users: "/api/v1/usuarios/register"
     userByDocumentNumber: "/api/v1/usuarios/{documentNumber}"
+    login: "/api/v1/login"
+jwt:
+  secret: mySuperSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm
+  expiration: 30
+
 adapters:
   r2dbc:
     host: "localhost"
@@ -34,3 +39,7 @@ adapters:
     schema: "public"
     username: "postgres"
     password: "postgres"
+logging:
+  level:
+    org.springframework.security: DEBUG
+    io.jsonwebtoken: DEBUG

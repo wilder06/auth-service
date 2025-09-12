@@ -6,6 +6,7 @@ import pe.com.creditya.model.common.exceptions.NotFoundException;
 import pe.com.creditya.model.common.exceptions.TechnicalException;
 import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
 import pe.com.creditya.model.user.User;
+import pe.com.creditya.model.user.gateways.PasswordEncoderRepository;
 import pe.com.creditya.model.user.gateways.UserRepository;
 import pe.com.creditya.model.common.validations.UserValidator;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UserUseCase implements IUserUseCase {
     private final UserRepository userRepository;
+    private final PasswordEncoderRepository passwordEncoderRepository;
     private final UserValidator validator;
 
     @Override
@@ -33,7 +35,13 @@ public class UserUseCase implements IUserUseCase {
         if (exists) {
             return Mono.error(new UserAlreadyExistsException(user.getEmail()));
         }
-        return userRepository.saveUser(user);
+        return Mono.just(user)
+                .map(newUser -> {
+                    String encodedPassword = passwordEncoderRepository.encode(newUser.getPassword());
+                    newUser.setPassword(encodedPassword);
+                    return newUser;
+                })
+                .flatMap(userRepository::saveUser);
     }
 
     @Override

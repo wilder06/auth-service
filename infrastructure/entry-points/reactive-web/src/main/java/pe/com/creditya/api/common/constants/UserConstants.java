@@ -8,5 +8,8 @@ public class UserConstants {
     public static final String NOT_FOUNT_RESOURCE = "El recurso solicitado no existe: ";
     public static final String LOGGER_VALIDATION_FAIL = "Error en la validacion del request: {} | Violations: {}";
     public static final String LOGGER_VALIDATION_SUCCESS = "Validacion exitoso del request: {}";
+    public static final String LOGGER_START_LOGIN = "Request recibido para login usuario: {}";
+    public static final String LOGGER_END_LOGIN = "User logged in successfully: {}";
+    public static final String VARIABLE_NAME = "documentNumber";
 
 }

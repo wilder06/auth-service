@@ -4,15 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import pe.com.creditya.api.common.ValidatorConfig;
+import pe.com.creditya.api.common.validators.ValidatorConfig;
 import pe.com.creditya.api.common.constants.UserConstants;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.usecase.user.IUserUseCase;
-import pe.com.creditya.usecase.user.UserUseCase;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -23,7 +23,7 @@ public class Handler {
     private final ValidatorConfig requestValidator;
     private final UserMapper userMapper;
 
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserRequest.class).doOnNext(req ->
                         log.info(UserConstants.LOGGER_START, req))
@@ -40,8 +40,9 @@ public class Handler {
                 .doOnError(ex -> log.error(UserConstants.LOGGER_SAVE_FAIL, ex.getMessage(), ex));
 
     }
-    public Mono<ServerResponse> listenGetTaskByDocumentNumber(ServerRequest serverRequest) {
-        String id = serverRequest.pathVariable("documentNumber");
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    public Mono<ServerResponse> listenGetUserByDocumentNumber(ServerRequest serverRequest) {
+        String id = serverRequest.pathVariable(UserConstants.VARIABLE_NAME);
         return iUserUseCase.findByDocumentNumber(id)
                 .map(userMapper::toUserResponse)
                 .flatMap(user -> ServerResponse.ok()

@@ -11,6 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import pe.com.creditya.api.common.constants.UserConstants;
 import pe.com.creditya.api.dtos.ErrorResponseDto;
+import pe.com.creditya.model.common.exceptions.InvalidCredentialsException;
 import pe.com.creditya.model.common.exceptions.TechnicalException;
 import pe.com.creditya.model.common.exceptions.UserAlreadyExistsException;
 import reactor.core.publisher.Mono;
@@ -72,4 +73,14 @@ public class GlobalExceptionHandler {
 
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse));
     }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public Mono<ErrorResponseDto> handleBadCredentialsException(InvalidCredentialsException ex) {
+        log.warn("Invalid credentials attempt: {}", ex.getMessage());
+        return Mono.just(new ErrorResponseDto(
+                "INVALID_CREDENTIALS",
+                "Credenciales inválidas o usuario no encontrado",
+                Instant.now()
+        ));
+    }
+
 }

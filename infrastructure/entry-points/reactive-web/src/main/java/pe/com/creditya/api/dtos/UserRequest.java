@@ -17,6 +17,8 @@ public record UserRequest(
         String phoneNumber,
         @NotBlank
         String documentNumber,
+        String password,
+        @NotNull Long idRole,
         String address,
         @NotNull @DecimalMin("0.00") @DecimalMax("15000000") BigDecimal baseSalary) {
 }

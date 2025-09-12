@@ -6,8 +6,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import pe.com.creditya.api.common.ValidatorConfig;
 import pe.com.creditya.model.common.validations.UserValidator;
+import pe.com.creditya.model.token.gateways.TokenRepository;
+import pe.com.creditya.model.user.gateways.PasswordEncoderRepository;
 import pe.com.creditya.model.user.gateways.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,6 +48,15 @@ public class UseCasesConfigTest {
         @Bean
         public UserValidator userValidator() {
             return Mockito.mock(UserValidator.class);
+        }
+        @Bean
+        public TokenRepository tokenRepository() {
+            return Mockito.mock(TokenRepository.class);
+        }
+        @Bean
+
+        public PasswordEncoderRepository passwordEncoderRepository() {
+            return Mockito.mock(PasswordEncoderRepository.class);
         }
     }
 

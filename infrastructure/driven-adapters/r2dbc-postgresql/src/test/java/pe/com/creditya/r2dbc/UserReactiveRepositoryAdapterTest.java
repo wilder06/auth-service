@@ -69,7 +69,7 @@ class UserReactiveRepositoryAdapterTest {
     @Test
     void existsByEmail_shouldReturnTrue_whenUserExists() {
         String email = "test@example.com";
-        when(repository.findByEmail(email)).thenReturn(Mono.just(true));
+        when(repository.findByEmail(email)).thenReturn(Mono.just(UserEntity.builder().build()));
 
         Mono<Boolean> result = repositoryAdapter.existsByEmail(email);
 

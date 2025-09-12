@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Table("usuarios")
+@Table("users")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -25,5 +25,7 @@ public class UserEntity {
     private String phoneNumber;
     private String documentNumber;
     private String email;
+    private String password;
     private BigDecimal baseSalary;
+    private Long idRole;
 }
