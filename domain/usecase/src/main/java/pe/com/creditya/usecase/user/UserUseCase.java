@@ -61,12 +61,11 @@ public class UserUseCase implements IUserUseCase {
         return userRepository.findByEmails(emails)
                 .switchIfEmpty(Mono.defer(() ->
                         Mono.error(new NotFoundException(
-                                LogConstants.LOGGER_USER_NOT_EXISTS + emails
+                                LogConstants.LOGGER_USERS_NOT_EXISTS + emails
                         ))
                 ))
-                .onErrorMap(ex -> new TechnicalException(
-                        LogConstants.LOGGER_ERROR_FIND_EMAILS + ex.getMessage(),
-                        ex
-                ));
+                .onErrorMap(TechnicalException.class, ex ->
+                        new TechnicalException(LogConstants.LOGGER_ERROR_GENERAL, ex)
+                );
     }
 }

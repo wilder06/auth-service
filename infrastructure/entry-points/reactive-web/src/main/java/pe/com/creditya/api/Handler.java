@@ -45,10 +45,10 @@ public class Handler {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Mono<ServerResponse> listenGetUserByDocumentNumber(ServerRequest serverRequest) {
-        String id = serverRequest.pathVariable(UserConstants.VARIABLE_NAME);
-        return iUserUseCase.findByDocumentNumber(id)
+        String documentNumber = serverRequest.pathVariable(UserConstants.VARIABLE_NAME);
+        return iUserUseCase.findByDocumentNumber(documentNumber)
                 .map(userMapper::toUserResponse)
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)

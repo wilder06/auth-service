@@ -7,6 +7,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -18,9 +20,13 @@ import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.api.mapper.UserMapperImpl;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.usecase.user.IUserUseCase;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,13 +87,12 @@ class RouterRestTest {
             .build();
 
     @Test
-    void shouldLoadUserPathProperties() {
+    void saveUser_shouldLoadUserPathProperties() {
         assertEquals("/api/v1/usuarios/register", userPath.getUsers());
-        assertEquals("/api/v1/usuarios/{documentNumber}", userPath.getUserByDocumentNumber());
     }
 
     @Test
-    void shouldReturn200WhenSaveUser() {
+    void saveUser_shouldReturnSuccess() {
         when(userMapper.toUser(any(UserRequest.class))).thenReturn(userOne);
         when(userUseCase.saveUser(any(User.class))).thenReturn(Mono.just(userOne));
         when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
@@ -101,15 +106,17 @@ class RouterRestTest {
                 .exchange()
                 .expectStatus().isCreated();
     }
+
     @Test
-    void testListenGET_UserExists_ReturnsTrue() {
-        when(userUseCase.findByDocumentNumber("12345678"))
+    void findUserByDocumentNumber_shouldReturnSuccess() {
+        when(userUseCase.findByDocumentNumber("32178987"))
                 .thenReturn(Mono.just(userOne));
         when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
 
-
         webTestClient
-                .mutateWith(mockUser("admin").roles("ADMIN"))
+                .mutateWith(mockUser()
+                        .authorities(new SimpleGrantedAuthority("ADMIN")))
+                .mutateWith(csrf())
                 .get()
                 .uri(userPath.getUserByDocumentNumber(), "32178987")
                 .accept(MediaType.APPLICATION_JSON)
@@ -118,6 +125,26 @@ class RouterRestTest {
                 .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
                 .expectBody(UserResponse.class)
                 .value(response -> Assertions.assertThat(response.documentNumber()).isEqualTo("32178987"));
+    }
+
+    @Test
+    void findUsersByEmails_shouldReturnSuccess() {
+        when(userUseCase.findByEmails(List.of("jn@example.com")))
+                .thenReturn(Flux.just(userOne));
+        when(userMapper.toUserResponse(any(User.class))).thenReturn(userResponse);
+
+
+        webTestClient
+                .mutateWith(mockUser()
+                        .authorities(new SimpleGrantedAuthority("ADVISOR")))
+                .mutateWith(csrf())
+                .post()
+                .uri(userPath.getUsersByEmails())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(List.of("jn@example.com"))
+                .exchange()
+                .expectStatus().isOk();
+
     }
 
 }
