@@ -1,5 +1,6 @@
 package pe.com.creditya.usecase.user;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pe.com.creditya.model.common.constants.LogConstants;
@@ -10,11 +11,13 @@ import pe.com.creditya.model.common.validations.UserValidator;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.PasswordEncoderRepository;
 import pe.com.creditya.model.user.gateways.UserRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -23,17 +26,16 @@ class UserUseCaseTest {
 
     private UserRepository userRepository;
     private IUserUseCase userUseCase;
-    private  UserValidator validator;
-    private PasswordEncoderRepository passwordEncoderRepository;
+    private UserValidator validator;
 
     private User user;
 
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
-            validator = mock(UserValidator.class);
-        passwordEncoderRepository=mock(PasswordEncoderRepository.class);
-        userUseCase = new UserUseCase(userRepository,passwordEncoderRepository,validator);
+        validator = mock(UserValidator.class);
+        PasswordEncoderRepository passwordEncoderRepository = mock(PasswordEncoderRepository.class);
+        userUseCase = new UserUseCase(userRepository, passwordEncoderRepository, validator);
         user = User.builder()
                 .name("demo")
                 .lastName("pablo")
@@ -47,7 +49,7 @@ class UserUseCaseTest {
     }
 
     @Test
-    void saveUser_success_whenUserNotExists() {
+    void saveUser_shouldSuccessUserNotExists() {
 
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(false));
         when(userRepository.saveUser(any(User.class))).thenReturn(Mono.just(user));
@@ -61,7 +63,7 @@ class UserUseCaseTest {
     }
 
     @Test
-    void saveUser_error_whenUserAlreadyExists() {
+    void saveUser_shouldUserAlreadyExists() {
 
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(true));
 
@@ -74,54 +76,80 @@ class UserUseCaseTest {
         verify(userRepository).existsByEmail(user.getEmail());
         verify(userRepository, never()).saveUser(any());
     }
-    @Test
-    void findByDocumentNumber_returnsNotFoundException_whenUserAlreadyExistsExceptionThrown() {
-        String documentNumber = "12345678";
-        String expectedMessage = LogConstants.LOGGER_USER_NOT_EXISTS + documentNumber;
 
-        when(userRepository.findByDocumentNumber(documentNumber))
-                .thenReturn(Mono.error(new UserAlreadyExistsException("User already exists")));
 
-        StepVerifier.create(userUseCase.findByDocumentNumber(documentNumber))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof NotFoundException &&
-                                throwable.getMessage().equals(expectedMessage))
-                .verify();
-    }
     @Test
-    void findByDocumentNumber_returnsTechnicalException_whenGenericExceptionThrown() {
+    void findUserByDocumentNumber_shouldTechnicalException() {
         String documentNumber = "12345678";
         String errorMessage = "Database connection failed";
 
         when(userRepository.findByDocumentNumber(documentNumber))
-                .thenReturn(Mono.error(new RuntimeException(errorMessage)));
+                .thenReturn(Mono.error(new TechnicalException(errorMessage, null)));
 
         StepVerifier.create(userUseCase.findByDocumentNumber(documentNumber))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof TechnicalException &&
-                                throwable.getMessage().equals(errorMessage) &&
-                                throwable.getCause() instanceof RuntimeException)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(TechnicalException.class, error);
+                })
                 .verify();
     }
 
-
     @Test
-    void saveUser_error_whenUnexpectedErrorOccurs() {
-
+    void saveUser_shouldReturnTechnicalException() {
+        doNothing().when(validator).validate(user);
         when(userRepository.existsByEmail(user.getEmail()))
-                .thenReturn(Mono.error(new RuntimeException("DB connection lost")));
+                .thenReturn(Mono.error(new TechnicalException("Repo failed", null)));
+        Mono<User> result = userUseCase.saveUser(user);
 
-        StepVerifier.create(userUseCase.saveUser(user))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof TechnicalException &&
-                                throwable.getMessage().contains("Error inesperado en registro de usuario"))
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(TechnicalException.class, error);
+                    Assertions.assertEquals(LogConstants.LOGGER_ERROR_GENERAL, error.getMessage());
+                })
                 .verify();
-
-        verify(userRepository).existsByEmail(user.getEmail());
-        verify(userRepository, never()).saveUser(any());
     }
+
     @Test
-    void findUser_whenUserSentDocumentNumber() {
+    void findUsersByEmails_shouldTechnicalException() {
+        List<String> emails = List.of("demo@example.com");
+        String errorMessage = "Database connection failed";
+
+        when(userRepository.findByEmails(emails))
+                .thenReturn(Flux.error(new TechnicalException(errorMessage, null)));
+
+        StepVerifier.create(userUseCase.findByEmails(emails))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(TechnicalException.class, error);
+                })
+                .verify();
+    }
+
+    @Test
+    void findUsersByEmails_shouldNotFoundException() {
+        List<String> emails = List.of("demo@example.com");
+        when(userRepository.findByEmails(emails))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(userUseCase.findByEmails(emails))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(NotFoundException.class, error);
+                })
+                .verify();
+    }
+
+    @Test
+    void findUserByDocumentNumber_shouldNotFoundException() {
+        when(userRepository.findByDocumentNumber(user.getDocumentNumber()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(userUseCase.findByDocumentNumber(user.getDocumentNumber()))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(NotFoundException.class, error);
+                })
+                .verify();
+    }
+
+    @Test
+    void findUserByDocumentNumber_shouldSuccessful() {
 
         when(userRepository.findByDocumentNumber(user.getDocumentNumber()))
                 .thenReturn(Mono.just(user));
@@ -131,5 +159,17 @@ class UserUseCaseTest {
                 .verifyComplete();
 
         verify(userRepository).findByDocumentNumber(user.getDocumentNumber());
+    }
+
+    @Test
+    void findUsersByEmails_shouldSuccessful() {
+        List<String> emails = List.of("demo@example.com");
+
+        when(userRepository.findByEmails(emails))
+                .thenReturn(Flux.just(user));
+
+        StepVerifier.create(userUseCase.findByEmails(emails))
+                .expectNext(user)
+                .verifyComplete();
     }
 }

@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 ApiPaths.SWAGGER_UI_ALL,
                                 ApiPaths.WEBJARS_ALL,
                                 ApiPaths.SWAGGER_RESOURCES_ALL).permitAll()
+                        .pathMatchers(HttpMethod.GET, ApiPaths.FIND_USER_BY_DOCUMENT_NUMBER).permitAll()
                         .pathMatchers(HttpMethod.POST, ApiPaths.LOGIN).permitAll()
                         .pathMatchers(HttpMethod.POST, ApiPaths.REGISTER).authenticated()
                         .pathMatchers(HttpMethod.POST, ApiPaths.APPLICATIONS).authenticated()

@@ -60,9 +60,6 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<User> findByDocumentNumber(String documentNumber) {
         log.info(LoggerConstants.LOG_START_VERIFY_EXIST_DOCUMENT, documentNumber);
         return repository.findByDocumentNumber(documentNumber)
-                .doOnSubscribe(sub -> log.info("Ejecutando query..."))
-                .doOnNext(user -> log.info("Usuario encontrado: {}", user))
-                .doOnError(error -> log.error("Error en query: {}", error.getMessage()))
                 .switchIfEmpty(Mono.fromRunnable(() -> log.info("No se encontró usuario")))
                 .map(this::toEntity);
     }
@@ -70,7 +67,6 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<User> findByEmail(String email) {
         log.info("Checking if user exists with email {}", email);
-
         return repository.findByEmail(email).map(this::toEntity)
                 .doOnNext(user -> log.info("User found: {}", user));
     }

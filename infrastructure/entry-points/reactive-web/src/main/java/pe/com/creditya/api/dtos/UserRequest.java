@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Builder
+@Builder(toBuilder = true)
 public record UserRequest(
         @NotBlank String name,
         @NotBlank String lastName,
