@@ -1,6 +1,8 @@
 package pe.com.creditya.security.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -25,12 +27,33 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange exchange) {
-        String token = exchange.getAttribute(Constants.TOKEN_ATTRIBUTE);
-        if (token == null) {
-            return Mono.empty();
-        }
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(token, token);
-        return authenticationManager.authenticate(authToken)
-                .map(SecurityContextImpl::new);
+        return extractTokenFromRequest(exchange.getRequest())
+                .flatMap(token -> {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(token, token);
+                    return authenticationManager.authenticate(authToken)
+                            .map(authentication -> {
+                                SecurityContext context = new SecurityContextImpl();
+                                context.setAuthentication(authentication);
+                                return context;
+                            });
+                })
+                .switchIfEmpty(Mono.empty());
+    }
+
+    private Mono<String> extractTokenFromRequest(ServerHttpRequest request) {
+        return Mono.fromCallable(() -> {
+            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                return authHeader.substring(7);
+            }
+            String tokenParam = request.getQueryParams().getFirst("token");
+            if (tokenParam != null && !tokenParam.isBlank()) {
+                return tokenParam;
+            }
+
+            return null;
+        });
     }
 }

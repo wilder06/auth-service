@@ -25,11 +25,19 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        return Mono.just(authentication)
+        return Mono.justOrEmpty(authentication)
                 .filter(auth -> auth.getCredentials() != null)
                 .switchIfEmpty(Mono.error(new InvalidCredentialsException(Constants.NOT_SENDED_TOKEN)))
-                .flatMap(auth -> jwtProvider.validateTokenAndGetClaims(auth.getCredentials().toString())
+                .flatMap(auth -> {
+                            String token = auth.getCredentials().toString();
+                   return jwtProvider.validateTokenAndGetClaims(auth.getCredentials().toString())
                         .map(this::createAuthentication)
+                                .doOnNext(authResult -> log.debug("Authentication successful for user: {}",
+                                        authResult.getName()))
+                                .doOnError(e -> log.warn("Authentication failed for token: {}", token, e));
+
+                }
+
                 )
                 .onErrorResume(e -> {
                     log.warn(Constants.LOGGER_AUTHENTICATION_FAILED, e.getMessage());

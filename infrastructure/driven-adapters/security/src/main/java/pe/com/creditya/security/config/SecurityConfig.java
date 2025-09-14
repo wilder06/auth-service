@@ -28,21 +28,22 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.POST, ApiPaths.LOGIN).permitAll()
-                        .pathMatchers(HttpMethod.POST, ApiPaths.REGISTER).authenticated()
                         .pathMatchers(ApiPaths.API_DOCS_ALL,
                                 ApiPaths.SWAGGER_UI,
                                 ApiPaths.SWAGGER_UI_ALL,
                                 ApiPaths.WEBJARS_ALL,
                                 ApiPaths.SWAGGER_RESOURCES_ALL).permitAll()
+                        .pathMatchers(HttpMethod.POST, ApiPaths.LOGIN).permitAll()
+                        .pathMatchers(HttpMethod.POST, ApiPaths.REGISTER).authenticated()
+                        .pathMatchers(HttpMethod.POST, ApiPaths.APPLICATIONS).authenticated()
                         .anyExchange().authenticated()
                 )
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .authenticationManager(jwtAuthenticationManager)
-                .securityContextRepository(securityContextRepository)
+               .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)
+                .authenticationManager(jwtAuthenticationManager)
+                .securityContextRepository(securityContextRepository)
                 .build();
     }
 

@@ -11,7 +11,10 @@ import pe.com.creditya.r2dbc.entity.UserEntity;
 import pe.com.creditya.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -70,6 +73,12 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
         return repository.findByEmail(email).map(this::toEntity)
                 .doOnNext(user -> log.info("User found: {}", user));
+    }
+
+    @Override
+    public Flux<User> findByEmails(List<String> emails) {
+        return repository.findByEmailIn(emails).map(this::toEntity)
+                .doOnNext(user -> log.info("Users found: {}", user));
     }
 
 }

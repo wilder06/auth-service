@@ -5,10 +5,13 @@ import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.model.user.User;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     User toUser(UserRequest request);
 
     UserResponse toUserResponse(User user);
+    List<UserResponse> toUserResponses(List<User> users);
 }

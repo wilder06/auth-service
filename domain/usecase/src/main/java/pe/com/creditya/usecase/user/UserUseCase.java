@@ -9,7 +9,10 @@ import pe.com.creditya.model.user.User;
 import pe.com.creditya.model.user.gateways.PasswordEncoderRepository;
 import pe.com.creditya.model.user.gateways.UserRepository;
 import pe.com.creditya.model.common.validations.UserValidator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class UserUseCase implements IUserUseCase {
@@ -23,12 +26,9 @@ public class UserUseCase implements IUserUseCase {
         return userRepository.existsByEmail(user.getEmail())
                 .flatMap(exists ->
                         handleUserExistence(exists, user))
-                .onErrorResume(ex -> {
-                    if (ex instanceof UserAlreadyExistsException) {
-                        return Mono.error(new UserAlreadyExistsException(user.getEmail()));
-                    }
-                    return Mono.error(new TechnicalException(LogConstants.LOGGER_ERROR_GENERAL, ex));
-                });
+                .onErrorMap(TechnicalException.class, ex ->
+                        new TechnicalException(LogConstants.LOGGER_ERROR_GENERAL, ex)
+                );
     }
 
     private Mono<User> handleUserExistence(boolean exists, User user) {
@@ -47,11 +47,26 @@ public class UserUseCase implements IUserUseCase {
     @Override
     public Mono<User> findByDocumentNumber(String documentNumber) {
         return userRepository.findByDocumentNumber(documentNumber)
-                .onErrorResume(ex -> {
-                    if (ex instanceof UserAlreadyExistsException) {
-                        return Mono.error(new NotFoundException(LogConstants.LOGGER_USER_NOT_EXISTS + documentNumber));
-                    }
-                    return Mono.error(new TechnicalException(ex.getMessage(), ex));
-                });
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.error(new NotFoundException(
+                                LogConstants.LOGGER_USER_NOT_EXISTS + documentNumber
+                        ))
+                ))
+                .onErrorMap(TechnicalException.class, ex ->
+                        new TechnicalException(ex.getMessage(), ex));
+    }
+
+    @Override
+    public Flux<User> findByEmails(List<String> emails) {
+        return userRepository.findByEmails(emails)
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.error(new NotFoundException(
+                                LogConstants.LOGGER_USER_NOT_EXISTS + emails
+                        ))
+                ))
+                .onErrorMap(ex -> new TechnicalException(
+                        LogConstants.LOGGER_ERROR_FIND_EMAILS + ex.getMessage(),
+                        ex
+                ));
     }
 }
