@@ -37,8 +37,11 @@ adapters:
     username: "postgres"
     password: "postgres"
 jwt:
-  secret: mySuperSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm
-  expiration: 3000
+  keystore-location: /Users/wilderpacpachuaman/Documents/certificados/users-keystore.jceks
+  keystore-password: changeit
+  key-alias: jwt-signer
+  key-password: changeit
+  expiration: 15
 logging:
   level:
     org.springframework.security: DEBUG

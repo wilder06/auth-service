@@ -9,6 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
-    private String secret;
     private long expiration;
+    private String keystoreLocation;
+    private String keystorePassword;
+    private String keyAlias;
+    private String keyPassword;
 }

@@ -1,11 +1,8 @@
 package pe.com.creditya.security.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,11 +11,10 @@ import pe.com.creditya.model.user.User;
 import pe.com.creditya.security.common.constants.Constants;
 import reactor.core.publisher.Mono;
 
-import javax.crypto.SecretKey;
+import java.security.KeyPair;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -26,7 +22,7 @@ import java.util.Objects;
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
-    private final SecretKey signingKey;
+    private final KeyPair keyPair;
 
     public String generateToken(UserDetails userDetails, User user) {
         long expiryMillis = jwtProperties.getExpiration() * 60L * 1000L;
@@ -44,14 +40,14 @@ public class JwtProvider {
                 .claim(Constants.USER_ID, user.getDocumentNumber())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
-                .signWith(signingKey)
+                .signWith(keyPair.getPrivate(), Jwts.SIG.RS256)
                 .compact();
     }
 
     public Claims parseClaims(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(signingKey)
+                    .verifyWith(keyPair.getPublic())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
@@ -66,11 +62,6 @@ public class JwtProvider {
                 .onErrorResume(e -> Mono.error(new BadCredentialsException(Constants.INVALID_JWT_TOKEN, e)));
     }
 
-    @Bean
-    public static SecretKey jwtSigningKey(JwtProperties props) {
-        byte[] keyBytes = Decoders.BASE64.decode(props.getSecret());
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
 }
 
 
