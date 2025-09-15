@@ -1,6 +1,6 @@
 routes:
   paths:
-    users: "/api/v1/usuarios/register"
+    users: "/api/v1/usuarios"
     userByDocumentNumber: "/api/v1/usuarios/{documentNumber}"
     users-by-emails: "/api/v1/usuarios/by-emails"
     login: "/api/v1/login"

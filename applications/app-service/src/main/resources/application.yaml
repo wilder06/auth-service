@@ -24,24 +24,24 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 routes:
   paths:
-    users: "/api/v1/usuarios/register"
-    userByDocumentNumber: "/api/v1/usuarios/{documentNumber}"
-    usersByEmails: "/api/v1/usuarios/by-emails"
-    login: "/api/v1/login"
+    users: "${RESOURCE_USERS}"
+    userByDocumentNumber: "${RESOURCE_USER_BY_DOCUMENT_NUMBER}"
+    usersByEmails: "${RESOURCE_USERS_BY_EMAILS}"
+    login: "${RESOURCE_LOGIN}"
 adapters:
   r2dbc:
-    host: "localhost"
+    host: "${R2DBC_HOST}"
     port: 5432
-    database: "postgres"
-    schema: "public"
-    username: "postgres"
-    password: "postgres"
+    database: "${R2DBC_DATABASE}"
+    schema: "${R2DBC_SCHEMA}"
+    username: "${R2DBC_USERNAME}"
+    password: "${R2DBC_PASSWORD}"
 jwt:
-  keystore-location: /Users/wilderpacpachuaman/Documents/certificados/users-keystore.jceks
-  keystore-password: changeit
-  key-alias: jwt-signer
-  key-password: changeit
-  expiration: 15
+  keystore-location: "${KEYSTORE_LOCATION}"
+  keystore-password: "${KEYSTORE_PASSWORD}"
+  key-alias: "${KEY_ALIAS}"
+  key-password: "${JWT_KEYSTORE_PASSWORD}"
+  expiration: 3600
 logging:
   level:
     org.springframework.security: DEBUG

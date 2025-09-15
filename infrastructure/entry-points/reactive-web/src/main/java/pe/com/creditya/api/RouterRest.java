@@ -38,7 +38,7 @@ public class RouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/usuarios/register",
+                    path = "/api/v1/usuarios",
                     method = RequestMethod.POST,
                     beanClass = Handler.class,
                     beanMethod = "listenSaveUser",

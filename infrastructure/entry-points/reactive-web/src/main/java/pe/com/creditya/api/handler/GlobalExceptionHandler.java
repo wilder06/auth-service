@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public Mono<ResponseEntity<ErrorResponseDto>> handleNoResourceFound(NoResourceFoundException ex, ServerWebExchange exchange) {
-        log.error("Error not found resource: {}", ex.getMessage());
+        log.error("Error not found resource: {}", ex.getCause());
 
         String path = exchange.getRequest().getPath().value();
 

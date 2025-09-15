@@ -27,7 +27,7 @@ public class Handler {
     private final ValidatorConfig requestValidator;
     private final UserMapper userMapper;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserRequest.class).doOnNext(req ->
                         log.info(UserConstants.LOGGER_START, req))
@@ -56,7 +56,7 @@ public class Handler {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADVISOR')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADVISOR')")
     public Mono<ServerResponse> getUsersByEmails(ServerRequest request) {
         return request.bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Request body is required")))
