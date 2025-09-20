@@ -18,6 +18,7 @@ import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
 import pe.com.creditya.api.mapper.UserMapper;
 import pe.com.creditya.api.mapper.UserMapperImpl;
+import pe.com.creditya.model.role.RoleEnum;
 import pe.com.creditya.model.user.User;
 import pe.com.creditya.usecase.user.IUserUseCase;
 import reactor.core.publisher.Flux;
@@ -80,7 +81,7 @@ class RouterRestTest {
             .baseSalary(BigDecimal.valueOf(10.0))
             .address("direccion")
             .password("admin123")
-            .idRole(3L)
+            .role(RoleEnum.USER.name())
             .phoneNumber("+516895987")
             .documentNumber("32178987")
             .birthDate(LocalDate.now())
@@ -88,7 +89,7 @@ class RouterRestTest {
 
     @Test
     void saveUser_shouldLoadUserPathProperties() {
-        assertEquals("/api/v1/usuarios/register", userPath.getUsers());
+        assertEquals("/api/v1/usuarios", userPath.getUsers());
     }
 
     @Test

@@ -4,7 +4,7 @@ public class ApiPaths {
     private ApiPaths() {}
     public static final String AUTH_BASE = "/api/v1";
     public static final String LOGIN = AUTH_BASE + "/login";
-    public static final String REGISTER = AUTH_BASE + "/usuarios/register";
+    public static final String REGISTER = AUTH_BASE.concat("/usuarios") ;
     public static final String FIND_USER_BY_DOCUMENT_NUMBER = AUTH_BASE + "/usuarios/{documentNumber}";
     public static final String APPLICATIONS =AUTH_BASE + "/usuarios/by-emails";
 
@@ -12,5 +12,6 @@ public class ApiPaths {
     public static final String SWAGGER_UI_ALL = "/swagger-ui/**";
     public static final String API_DOCS_ALL = "/v3/api-docs/**";
     public static final String WEBJARS_ALL = "/webjars/**";
+    public static final String HEALTH_CHECK = "/actuator/**";
     public static final String SWAGGER_RESOURCES_ALL = "/swagger-resources/**";
 }

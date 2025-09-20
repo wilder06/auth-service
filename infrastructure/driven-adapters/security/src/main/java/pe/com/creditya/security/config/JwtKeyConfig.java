@@ -3,6 +3,7 @@ package pe.com.creditya.security.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import pe.com.creditya.security.common.constants.Constants;
 import pe.com.creditya.security.jwt.JwtProperties;
 
 import java.io.FileInputStream;
@@ -18,7 +19,7 @@ public class JwtKeyConfig {
     @Bean
     public KeyPair jwtKeyPair() {
         try {
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            KeyStore keyStore = KeyStore.getInstance(Constants.PREFIX_CERT);
             keyStore.load(
                     new FileInputStream(props.getKeystoreLocation()),
                     props.getKeystorePassword().toCharArray()
@@ -30,7 +31,7 @@ public class JwtKeyConfig {
             );
 
             if (!(key instanceof PrivateKey privateKey)) {
-                throw new IllegalStateException("No private key found for alias " + props.getKeyAlias());
+                throw new IllegalStateException(Constants.LOGGER_ERROR_ALIAS+ props.getKeyAlias());
             }
 
             Certificate cert = keyStore.getCertificate(props.getKeyAlias());
@@ -38,7 +39,7 @@ public class JwtKeyConfig {
 
             return new KeyPair(publicKey, privateKey);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load JWT key pair from keystore", e);
+            throw new IllegalStateException(Constants.LOGGER_ERROR_KEY, e);
         }
     }
 }

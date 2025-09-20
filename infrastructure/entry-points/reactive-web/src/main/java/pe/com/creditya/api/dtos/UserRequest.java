@@ -14,11 +14,10 @@ public record UserRequest(
         @NotBlank String lastName,
         @NotBlank @Email String email,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
-        String phoneNumber,
-        @NotBlank
-        String documentNumber,
-        String password,
-        @NotNull Long idRole,
-        String address,
+        @NotBlank String phoneNumber,
+        @NotBlank String documentNumber,
+        @NotBlank String password,
+        @NotBlank String role,
+        @NotBlank String address,
         @NotNull @DecimalMin("0.00") @DecimalMax("15000000") BigDecimal baseSalary) {
 }

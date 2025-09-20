@@ -86,7 +86,7 @@ class ConfigTest {
                 .mutateWith(mockUser("admin").roles("ADMIN")) // <= inyecta usuario autenticado con rol válido
                 .mutateWith(csrf())
                 .post()
-                .uri("/api/v1/usuarios/register")
+                .uri("/api/v1/usuarios")
                 .exchange()
                 .expectHeader().valueEquals("Content-Security-Policy",
                         "default-src 'self'; frame-ancestors 'self'; form-action 'self'")

@@ -3,7 +3,6 @@ package pe.com.creditya.usecase.auth;
 import lombok.RequiredArgsConstructor;
 import pe.com.creditya.model.common.constants.LogConstants;
 import pe.com.creditya.model.common.exceptions.InvalidCredentialsException;
-import pe.com.creditya.model.common.exceptions.TechnicalException;
 import pe.com.creditya.model.token.gateways.TokenRepository;
 import reactor.core.publisher.Mono;
 

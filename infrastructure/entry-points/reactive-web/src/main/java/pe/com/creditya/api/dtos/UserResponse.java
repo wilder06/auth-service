@@ -13,6 +13,7 @@ public record UserResponse(
         String phoneNumber,
         String documentNumber,
         String email,
+        String role,
         BigDecimal baseSalary
 ) {
 }
