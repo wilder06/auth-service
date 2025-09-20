@@ -39,7 +39,7 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .as(transactionalOperator::transactional)
                 .onErrorResume(ex ->
                         Mono.error(new UserPersistenceException(
-                                LoggerConstants.LOG_SAVE_USER_FAIL + user.getEmail(),
+                                LoggerConstants.LOG_SAVE_USER_FAIL + ex,
                                 ex
                         )));
     }
@@ -51,7 +51,7 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(user -> true)
                 .defaultIfEmpty(false)
                 .onErrorResume(ex -> {
-                    log.error("Error checking email {}: {}", email, ex.getMessage());
+                    log.error(LoggerConstants.LOGGER_ERROR_EMAIL, email, ex.getMessage());
                     return Mono.just(false);
                 });
     }
@@ -60,21 +60,21 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<User> findByDocumentNumber(String documentNumber) {
         log.info(LoggerConstants.LOG_START_VERIFY_EXIST_DOCUMENT, documentNumber);
         return repository.findByDocumentNumber(documentNumber)
-                .switchIfEmpty(Mono.fromRunnable(() -> log.info("No se encontró usuario")))
+                .switchIfEmpty(Mono.fromRunnable(() -> log.info(LoggerConstants.LOGGER_NOT_FOUND_USER)))
                 .map(this::toEntity);
     }
 
     @Override
     public Mono<User> findByEmail(String email) {
-        log.info("Checking if user exists with email {}", email);
+        log.info(LoggerConstants.LOG_VERIFY_EXIST_EMAIL, email);
         return repository.findByEmail(email).map(this::toEntity)
-                .doOnNext(user -> log.info("User found: {}", user));
+                .doOnNext(user -> log.info(LoggerConstants.LOGGER_FOUND_USER, user));
     }
 
     @Override
     public Flux<User> findByEmails(List<String> emails) {
         return repository.findByEmailIn(emails).map(this::toEntity)
-                .doOnNext(user -> log.info("Users found: {}", user));
+                .doOnNext(user -> log.info(LoggerConstants.LOGGER_FOUND_USERS, user));
     }
 
 }

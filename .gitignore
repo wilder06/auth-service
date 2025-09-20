@@ -7,6 +7,7 @@ bin/
 tmp/
 *.tmp
 *.bak
+*.env
 *.swp
 *~.nib
 local.properties

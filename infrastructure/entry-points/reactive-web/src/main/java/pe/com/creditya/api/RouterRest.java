@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,7 +15,6 @@ import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -24,9 +22,6 @@ import pe.com.creditya.api.common.UserPath;
 import pe.com.creditya.api.dtos.ErrorResponseDto;
 import pe.com.creditya.api.dtos.UserRequest;
 import pe.com.creditya.api.dtos.UserResponse;
-
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -125,7 +120,7 @@ public class RouterRest {
                             ),
                             @ApiResponse(
                                     responseCode = "400",
-                                    description = "Parámetro 'documentNumber' inválido o vacío"
+                                    description = "Parámetro documentNumber inválido o vacío"
                             )
                     }
             )
@@ -135,11 +130,10 @@ public class RouterRest {
             beanClass = Handler.class,
             beanMethod = "getUsersByEmails",
             operation = @Operation(
-                    summary = "Get users by emails",
+                    summary = "Buscar usuarios por correos",
                     operationId = "getUsersByEmails",
                     security = @SecurityRequirement(name = "bearerAuth"),
                     requestBody = @RequestBody(
-                            description = "List of email addresses",
                             required = true,
                             content = @Content(
                                     mediaType = "application/json",
@@ -151,25 +145,23 @@ public class RouterRest {
                     responses = {
                             @ApiResponse(
                                     responseCode = "200",
-                                    description = "Users found successfully",
+                                    description = "Se encontro usuarios con exito",
                                     content = @Content(
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = UserResponse.class))
+
                                     )
-                            ),
-                            @ApiResponse(
-                                    responseCode = "400",
-                                    description = "Invalid input parameters",
-                                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
                             )
                     }
             )
     )
     })
     public RouterFunction<ServerResponse> routerFunction() {
-        return route(POST(userPath.getUsers()), userHandler::listenSaveUser)
-                .andRoute(GET(userPath.getUserByDocumentNumber()), userHandler::listenGetUserByDocumentNumber)
-                .andRoute(POST(userPath.getUsersByEmails()), userHandler::getUsersByEmails);
+        return route()
+                .POST(userPath.getUsers(), userHandler::listenSaveUser)
+                .GET(userPath.getUserByDocumentNumber(), userHandler::listenGetUserByDocumentNumber)
+                .POST(userPath.getUsersByEmails(), userHandler::getUsersByEmails)
+                .build();
     }
 
 }

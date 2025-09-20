@@ -14,6 +14,7 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import pe.com.creditya.security.common.constants.ApiPaths;
 import pe.com.creditya.security.jwt.JwtAuthenticationManager;
 import pe.com.creditya.security.repository.SecurityContextRepository;
+import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -28,19 +29,22 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(ApiPaths.API_DOCS_ALL,
+                        .pathMatchers(ApiPaths.HEALTH_CHECK,
+                                ApiPaths.API_DOCS_ALL,
                                 ApiPaths.SWAGGER_UI,
                                 ApiPaths.SWAGGER_UI_ALL,
                                 ApiPaths.WEBJARS_ALL,
                                 ApiPaths.SWAGGER_RESOURCES_ALL).permitAll()
-                        .pathMatchers(ApiPaths.HEALTH_CHECK).permitAll()
-                        .pathMatchers(HttpMethod.GET, ApiPaths.FIND_USER_BY_DOCUMENT_NUMBER).permitAll()
+                        .pathMatchers(HttpMethod.GET, ApiPaths.FIND_USER_BY_DOCUMENT_NUMBER).hasAnyRole("ADMIN","USER")
                         .pathMatchers(HttpMethod.POST, ApiPaths.LOGIN).permitAll()
-                        .pathMatchers(HttpMethod.POST, ApiPaths.REGISTER).authenticated()
-                        .pathMatchers(HttpMethod.POST, ApiPaths.APPLICATIONS).authenticated()
+                        .pathMatchers(HttpMethod.POST, ApiPaths.REGISTER).hasAnyRole("ADMIN")
+                        .pathMatchers(HttpMethod.POST, ApiPaths.APPLICATIONS).hasAnyRole("ADMIN","ADVISOR")
                         .anyExchange().authenticated()
                 )
-               .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((exchange, ex) -> Mono.error(ex))
+                        .accessDeniedHandler((exchange, denied) -> Mono.error(denied))
+                )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)

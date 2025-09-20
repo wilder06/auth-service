@@ -6,7 +6,7 @@ public class LogConstants {
     public static final String LOGGER_USER_NOT_EXISTS = "No se encontro usuaro con numero documento: ";
     public static final String LOGGER_ERROR_FIND_EMAILS= "Error fetching users by emails: ";
     public static final String LOGGER_USERS_NOT_EXISTS = "No se encontro usuario con email: ";
-    public static final String LOGGER_ERROR_AUTHENTICATE = "Error on authenticate user";
+    public static final String LOGGER_ERROR_AUTHENTICATE = "Email o contraseña inválidos";
 
 
 }

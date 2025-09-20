@@ -24,7 +24,7 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 routes:
   paths:
-    users: "${RESOURCE_USERS}"
+    users: "${RESOURCE_USER}"
     userByDocumentNumber: "${RESOURCE_USER_BY_DOCUMENT_NUMBER}"
     usersByEmails: "${RESOURCE_USERS_BY_EMAILS}"
     login: "${RESOURCE_LOGIN}"
@@ -46,3 +46,5 @@ logging:
   level:
     org.springframework.security: DEBUG
     io.jsonwebtoken: DEBUG
+    org.springframework.web.reactive: DEBUG
+    pe.com.creditya.api: TRACE
